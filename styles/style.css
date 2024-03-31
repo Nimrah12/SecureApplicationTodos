@@ -1,0 +1,242 @@
+/* styles/style.css */
+
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 10px;
+  padding: 10px;
+  background-color: lightblue;
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 2px solid black;
+  border-radius: 4px;
+}
+
+header {
+  background-color: #333;
+  color: black;
+  padding: 5px;
+  text-align: center;
+}
+
+
+nav li {
+  display: inline;
+  margin-right: 15px;
+}
+
+.navbar {
+  padding: 10px 15px;
+}
+
+.nav-link {
+  font-size: 20px;
+  font-weight: bold;
+  padding: 10px;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-style: italic;
+  text-decoration: underline;
+
+}
+
+.navbar-nav li {
+  padding-right: 10px;
+}
+
+
+a {
+  text-decoration: none;
+  color: #333;
+}
+
+/* Main Page Styles */
+body.main {
+  background-color: blanchedalmond;
+}
+
+.fakeimg {
+  height: 300px;
+  background: #aaa;
+}
+
+/* Login and Register Page Styles */
+body.login,
+body.register {
+  background-color: blanchedalmond;
+  height: 100vh;
+  text-align: center;
+}
+
+form {
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+  background-color: honeydew;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  font-family: Georgia, 'Times New Roman', Times, serif;
+
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #bbb0b0;
+}
+
+/* Task Page Styles */
+body.tasks {
+  background-color: blanchedalmond;
+  justify-content: center;
+  text-align: center;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  font-size: 20px;
+  margin-bottom: 10px;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+h2,
+h3 {
+  color: #333;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+a {
+  color: #007bff;
+  background-color: pink;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+section {
+  margin-bottom: 20px;
+}
+
+h3 {
+  color: #333;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.todo-form {
+  max-width: 45%;
+  margin: 10;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: honeydew;
+}
+
+.form-group {
+  margin-bottom: 10px;
+}
+
+label {
+  font-weight: bold;
+}
+
+input[type="text"],
+textarea,
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.back-link {
+  display: block;
+  margin-top: 20px;
+  text-align: center;
+  color: #f8f8f8;
+  padding: 10px;
+  font-size: 20px;
+  background-color: gray;
+}
+
+.back-link:hover {
+  color: #0056b3;
+}
+
+h1 {
+  font-weight: bold;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  text-decoration: solid;
+}
+
+.list-unstyled {
+  background-color: lightgoldenrodyellow;
+}
+
+.all-tasks {
+  background-color: blanchedalmond;
+}
+.edittask{
+  background-color: blanchedalmond;
+}
+
+.task {
+  background-color: blanchedalmond;
+}
+
+h2 {
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+.aboutus {
+  text-align: center;
+  padding: 20px;
+  margin: 20px;
+  ;
+  color: black;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
