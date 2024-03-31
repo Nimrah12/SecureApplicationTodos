@@ -1,0 +1,231 @@
+//Secure Code 
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const sqlite3 = require('sqlite3').verbose();
+const bcrypt = require('bcrypt');
+const helmet = require('helmet');
+const csurf = require('csurf');
+const morgan = require('morgan');
+
+const app = express();
+const port = 3000;
+
+// Middleware for security headers
+app.use(helmet());
+app.use(bcrypt());
+
+// Middleware for CSRF protection
+app.use(csurf({ cookie: true }));
+
+// Middleware for HTTP request logging
+app.use(morgan('combined'));
+
+
+// Use EJS as the view engine
+app.set('view engine', 'ejs');
+
+// Serve static files from the 'styles' directory
+app.use('/styles', express.static('styles'));
+
+// Use body-parser middleware to parse form data
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('views'));
+
+// SQLite3 database setup
+const db = new sqlite3.Database('./database.db');
+
+// Create users and tasks tables
+db.serialize(() => {
+    db.run(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT,
+      password TEXT
+    )
+  `);
+
+    db.run(`
+    CREATE TABLE IF NOT EXISTS tasks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT,
+      description TEXT,
+      dueDate DATE,
+      priority TEXT,
+      completed INTEGER,
+      user_id INTEGER,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    )
+  `);
+});
+
+
+// Routes
+app.get('/', (req, res) => {
+    res.render('login');
+});
+app.get('/login', (req, res) => {
+    console.log('Login route reached');
+    // Render the login page
+    res.render('login');
+});
+app.get('/register', (req, res) => {
+    res.render('register');
+});
+
+
+// Password hashing and salting for secure storage
+app.post('/register', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10); // Hash password with salt
+        db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword], (err) => {
+            if (err) {
+                return res.send('Registration failed. Please try again.');
+            }
+            res.send('Registration successful! <a href="/login">Login</a>');
+        });
+    } catch (error) {
+        console.error('Password hashing error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
+//login route
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    // Use parameterized query to prevent SQL injection
+    db.get('SELECT * FROM users WHERE username = ? AND password = ?', [username, password], (err, row) => {
+        if (err) {
+            return res.status(500).send('Login failed. Please try again.');
+        }
+        if (!row) {
+            return res.status(401).send('Invalid username or password.');
+        }
+        res.redirect('/tasks');
+    });
+});
+
+
+// Secure task retrieval route
+app.get('/tasks', (req, res) => {
+    // Retrieve tasks for the logged-in user
+    const userId = req.query.userId;
+    if (!userId) {
+        return res.status(401).send('Unauthorized access.');
+    }
+    // Use prepared statements to prevent SQL injection
+    db.all('SELECT * FROM tasks WHERE user_id = ?', [userId], (err, tasks) => {
+        if (err) {
+            return res.status(500).send('Error retrieving tasks.');
+        }
+        res.render('tasks', { tasks });
+    });
+});
+
+// Secure task creation route
+app.post('/tasks', (req, res) => {
+    const { title, description, dueDate, priority, completed, userId } = req.body;
+    // Ensure userId is provided, XSS prevention
+    if (!userId) {
+        return res.status(400).send('User ID is required.');
+    }
+    // Insert task into the database
+    db.run(
+        'INSERT INTO tasks (title, description, dueDate, priority, completed, user_id) VALUES (?, ?, ?, ?, ?, ?)',
+        [title, description, dueDate, priority, completed ? 1 : 0, userId],
+        (err) => {
+            if (err) {
+                console.error('Task creation error:', err);
+                return res.status(500).send('Task creation failed. Please try again.');
+            }
+            res.redirect('/tasks');
+        }
+    );
+});
+
+
+
+// Route to display all tasks
+// Secure route to display all tasks
+app.get('/all-tasks', (req, res) => {
+    // Ensure only authenticated users can access
+    if (!req.isAuthenticated()) {
+        return res.status(401).send('Unauthorized access.');
+    }
+    // Fetch tasks only for the authenticated user
+    const userId = req.user.id;
+    db.all('SELECT * FROM tasks WHERE user_id = ?', [userId], (err, tasks) => {
+        if (err) {
+            console.error('Error fetching tasks:', err);
+            return res.status(500).send('Internal Server Error');
+        }
+        res.render('allTasks', { tasks });
+    });
+});
+
+
+// Edit task route
+app.get('/tasks/:id/edit', (req, res) => {
+    const taskId = req.params.id;
+    // Retrieve task details
+    db.get('SELECT * FROM tasks WHERE id = ?', [taskId], (err, task) => {
+        if (err || !task) {
+            return res.send('Task not found.');
+        }
+        res.render('editTask', { task });
+    });
+});
+
+// Update task route
+app.post('/tasks/:id/edit', (req, res) => {
+    const taskId = req.params.id;
+    const { title, description, dueDate, priority, completed } = req.body;
+    // Update task in the database
+    db.run(
+        'UPDATE tasks SET title = ?, description = ?, dueDate = ?, priority = ?, completed = ? WHERE id = ?',
+        [title, description, dueDate, priority, completed ? 1 : 0, taskId],
+        (err) => {
+            if (err) {
+                return res.send('Task update failed. Please try again.');
+            }
+            res.redirect('/tasks');
+        }
+    );
+});
+
+// Delete task route
+app.get('/tasks/:id/delete', (req, res) => {
+    const taskId = req.params.id;
+    // Delete task from the database
+    db.run('DELETE FROM tasks WHERE id = ?', [taskId], (err) => {
+        if (err) {
+            return res.send('Task deletion failed. Please try again.');
+        }
+        res.redirect('/tasks');
+    });
+});
+
+// Main page route
+app.get('/main', (req, res) => {
+    res.render('main');
+});
+
+// Route to handle logout
+app.get('/logout', (req, res) => {
+    console.log('Logout route reached');
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error destroying session:', err);
+            return res.status(500).send('Internal Server Error');
+        }
+        res.redirect('/login');
+    });
+});
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
+});
+
