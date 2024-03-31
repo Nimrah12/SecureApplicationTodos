@@ -23,7 +23,7 @@ Start managing your tasks!
 
 User authentication: Register, login, and logout functionality.
 Task management: Create, edit, delete, and mark tasks as completed.
-Responsive design: Accessible on desktop and mobile devices.
+Responsive design: Accessible on web
 
 ## Technologies Used
 
